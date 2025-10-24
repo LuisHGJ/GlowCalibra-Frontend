@@ -8,12 +8,21 @@ export default function Home() {
   const [status, setStatus] = useState<string>();
   const [resultados, setResultados] = useState<string[]>([]);
   const [csvUrl, setCsvUrl] = useState<string>();
+  const [isLargeViewOpen, setIsLargeViewOpen] = useState(false);
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (file) {
       setImagemPreview(URL.createObjectURL(file));
       setArquivo(file);
+      console.log("Arquivo selecionado:", event.target.files?.[0]);
+    }
+  }
+
+  function openLargeView(e: React.MouseEvent) {
+    e.preventDefault(); 
+    if (imagemPreview) {
+      setIsLargeViewOpen(true);
     }
   }
 
@@ -29,6 +38,7 @@ export default function Home() {
     formData.append("file", arquivo);
 
     try {
+      console.log("Upload iniciado");
       const response = await fetch("http://localhost:5000/process", {
         method: "POST",
         body: formData,
@@ -37,6 +47,7 @@ export default function Home() {
       if (!response.ok) throw new Error("Falha no upload");
 
       const data = await response.json();
+      console.log("Resposta:", data);
       console.log(data);
       setStatus("Upload realizado com sucesso!");
 
@@ -62,58 +73,91 @@ export default function Home() {
 
   return (
     <div className="main">
-      <Image
+      <div className="titleBox">
+        <Image
         src="/assets/logo.png"
         height={300}
         width={300}
         alt="Logo"
-      />
-
-      <form onSubmit={handleUpload} className="uploadFotoForm">
-        <input
-          id="uploadFoto"
-          name="uploadFoto"
-          type="file"
-          accept="image/*"
-          className="inputForm"
-          onChange={handleFileChange}
+        className='logoImg'
         />
+        <h1 className="title">Glow Calibra</h1>
+      </div>
 
-        <label htmlFor="uploadFoto" className="labelForm"> Selecionar imagem </label>
+      {/* Área de upload */}
+      {resultados.length === 0 && (
+        <form onSubmit={handleUpload} className="uploadFotoForm">
+          <input
+            id="uploadFoto"
+            name="uploadFoto"
+            type="file"
+            accept="image/*"
+            className="inputForm"
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+          />
+          <label
+            htmlFor="uploadFoto"
+            className={`labelForm ${imagemPreview ? 'hasImage' : ''}`}
+          >
+            {!imagemPreview ? (
+              "Selecione a imagem"
+            ) : (
+              <>
+                <div className="PreviewBox" onClick={openLargeView}>
+                  <img
+                    src={imagemPreview}
+                    alt="Pré-visualização (Clique para ampliar)"
+                    className="imgPreview"
+                  />
+                </div>
+                <h2 className="previewTitle">Trocar imagem</h2>
+              </>
+            )}
+          </label>
+          <div className='buttonContainer'>
+            <button type="submit" className="btEnviar">Enviar</button>
+          </div>
+          {status && <p>{status}</p>}
+        </form>
+      )}
 
-        {imagemPreview && (
-          <div className="PreviewBox">
-            <img
-              src={imagemPreview}
-              alt="Pré-visualização"
-              className="imgPreview"
-            />
+      {/* Modal da imagem */}
+      {isLargeViewOpen && imagemPreview && (
+      <div className="largeViewModal" onClick={() => setIsLargeViewOpen(false)}>
+          <div className="modalContent" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setIsLargeViewOpen(false)}>
+              &times;
+            </button>
+            <img src={imagemPreview} alt="Visualização Grande" className="largeImage" />
+          </div>
+      </div>
+      )}
+      
+      {/* Resultados */}
+      <div className='resultadosContainer'>
+        {resultados.length > 0 && (
+          <div className="resultadosCard">
+            <h2>Imagens Processadas:</h2>
+            <div className="resultadosGrid">
+              {resultados.map((url, index) => (
+                <div key={index} className="imgBox">
+                  <img src={url} alt={`Processado ${index}`} />
+                </div>
+              ))}
+            </div>
+            <div className='buttonDownloadContainer'>
+              {csvUrl && (
+                <div className="csvDownload">
+                  <a href={csvUrl} download className='buttonDownload'>
+                    Baixar CSV com resultados
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
         )}
-
-        <button type="submit" className="btEnviar">Enviar</button>
-
-        {status && <p>{status}</p>}
-      </form>
-
-      {resultados.length > 0 && (
-        <div className="resultados">
-          <h2>Imagens Processadas:</h2>
-          {resultados.map((url, index) => (
-            <div key={index} className="imgBox">
-              <img src={url} alt={`Processado ${index}`} style={{ maxWidth: "300px", margin: "10px" }} />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {csvUrl && (
-        <div className="csvDownload">
-          <a href={csvUrl} download>
-            Baixar CSV com resultados
-          </a>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -21,22 +21,80 @@
 
 body {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100wh;
   background: var(--background);
   color: black;
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
   padding: 0;
-  justify-content: center;
+  position: relative;
+}
+
+.titleBox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display:flex;
   align-items: center;
 }
 
+.logoImg {
+  width: 20%;
+  height: auto;
+  margin-left: 4vh;
+  margin-top: 2vh;
+}
+
 h1 {
-  font-size: 10vh;
+  font-size: 2vh;
+  margin-top: 7vh;
+}
+
+.uploadContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;  
+  flex-direction: column;  
+}
+
+.uploadContainer p {
+  
+  font-weight: bold;
+  font-size: 2vh;;
+}
+
+.labelForm {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #d9d9d952;
+  width: 65vh;
+  height: 40vh;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 2.5vh;
+  color: #000000;
+  margin-top: 5vh;
+  transition: 0.3s;
+  border: 2px dashed #999999;
+}
+
+.labelForm:hover {
+  background-color: #bcbcbce1;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: center;
 }
 
 .btEnviar {
-  background-color: green;
-  border-radius: 10px;
+  background-color: rgb(1, 165, 1);
+  border-radius: 25px;
   margin-top: 35px;
   margin-bottom: 15px;
   padding-top: 5px;
@@ -44,48 +102,179 @@ h1 {
   font-size: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
+  width: 30%;
+  color: white;
+  font-weight: bold;
 }
 
 .btEnviar:hover {
   font-size: 21;
   transform: scale(1.1);
-  background-color: rgb(6, 190, 6);
+  background-color: rgb(0, 208, 0);
 }
 
-.uploadFotoForm {
+.labelForm.hasImage {
+  background-color: #d9d9d952;
+  border: none; 
+  padding: 20px;
+  justify-content: flex-start;
+  align-items: center; 
+  flex-direction: column;
+  width: 65vh; 
+  height: 40vh;
+  cursor: default;
+}
+
+.labelForm.hasImage:hover {
+    cursor: pointer;
+}
+
+.PreviewBox {
   display: flex;
   flex-direction: column;
-}
-
-.inputForm {
-  display: none;
-}
-
-.labelForm {
-  margin-top: 15px;
-  font-size: 20px;
-  color: black;
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.labelForm:hover {
-  font-size: 21px;
-  color: #0077ff;
-  transform: scale(1.1);
-}
-
-.PreviewBox{
-  display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  flex-grow: 1;    
+  min-height: 0;     
+  padding: 10px;
+  position: relative;
 }
 
 .imgPreview {
-  max-width: 200px;
-  max-height: 100px;
-  justify-content: center;
+  max-width: 90%;
+  max-height: 90%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
   border-radius: 8px;
   border: 1px solid #ccc;
+  transition: opacity 0.3s;
+  background-color: #d9d9d952;
+}
+
+.PreviewBox:hover .imgPreview {
+    opacity: 0.8;
+}
+
+.replace-text {
+    position: absolute;
+    bottom: 5px;
+    font-size: 1.5vh;
+    color: #666;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 2px 5px;
+    border-radius: 5px;
+}
+
+h2{
+  font-size: 2.4vh;
+  display: inline-block;
+  margin-top: 10px; 
+  padding: 8px 16px;
+  font-size: 2vh;
+  font-weight: bold;
+  color: #171717;
+  background-color: transparent; 
+  border: 2px dashed #999999;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+h2:hover {
+  background-color: #c0d3c0;
+  color: rgb(0, 0, 0);
+  border-color: #1aa51a;
+}
+
+/* Modal */
+.largeViewModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.largeImage {
+    max-width: 85%;
+    max-height: 90vh; 
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+/* Resultados */
+.resultadosGrid{
+  display: flex;
+  gap:50px;
+}
+
+.resultadosCard {
+  background-color: #f0f0f0;
+  border-radius: 25px; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding-left: 5vh;
+  padding-right: 5vh;
+  padding-top: 3vh;
+  padding-bottom: 4vh;
+}
+
+.resultadosCard h2 {
+  margin-bottom: 20px;
+  color: #171717;
+  font-size: 2.5vh;
+  font-weight: bold;
+}
+
+.imgBox img{
+  border-radius: 20px;
+  max-width: 370px;
+  height: auto;
+}
+
+/* Download */
+.buttonDownloadContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.csvDownload {
+  margin-top:20px
+}
+
+.buttonDownload {
+  display: inline-block;
+  background-color: transparent;
+  border: 3px solid rgb(1, 165, 1);
+  color: rgb(1, 165, 1);
+  padding: 15px 20px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  margin-top: 1.5vh;
+}
+
+.buttonDownload:hover {
+  background-color: rgb(1, 165, 1);
+  color: white;
+  border-color: rgb(1, 165, 1);
 }
