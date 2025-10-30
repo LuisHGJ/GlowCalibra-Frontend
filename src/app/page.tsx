@@ -9,6 +9,8 @@ export default function Home() {
   const [resultados, setResultados] = useState<string[]>([]);
   const [csvUrl, setCsvUrl] = useState<string>();
   const [isLargeViewOpen, setIsLargeViewOpen] = useState(false);
+  const [largeImageSrc, setLargeImageSrc] = useState<string>();
+  const [resumo, setResumo] = useState<any[]>([]);
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -19,11 +21,10 @@ export default function Home() {
     }
   }
 
-  function openLargeView(e: React.MouseEvent) {
-    e.preventDefault(); 
-    if (imagemPreview) {
-      setIsLargeViewOpen(true);
-    }
+  function openLargeView(e: React.MouseEvent, src: string) {
+    e.preventDefault();
+    setLargeImageSrc(src);
+    setIsLargeViewOpen(true);
   }
 
   async function handleUpload(event: React.FormEvent) {
@@ -61,14 +62,25 @@ export default function Home() {
         }
       });
 
+      const subdir = new URL(data.results[0]).pathname.split("/")[2]; 
+
       setResultados(imagens);
-      setCsvUrl(csv);
+      setCsvUrl(subdir);
+      setResumo(data.resumo);
 
     } catch (err) {
       console.error(err);
       setStatus("Erro ao enviar a imagem");
     }
 
+  }
+
+  function resetUpload() {
+    setImagemPreview(undefined);
+    setArquivo(undefined);
+    setStatus(undefined);
+    setResultados([]);
+    setCsvUrl(undefined);
   }
 
   return (
@@ -104,14 +116,14 @@ export default function Home() {
               "Selecione a imagem"
             ) : (
               <>
-                <div className="PreviewBox" onClick={openLargeView}>
+                <div className="PreviewBox" onClick={(e) => openLargeView(e, imagemPreview)}>
                   <img
                     src={imagemPreview}
                     alt="Pré-visualização (Clique para ampliar)"
                     className="imgPreview"
                   />
                 </div>
-                <h2 className="previewTitle">Trocar imagem</h2>
+                <h4 className="previewTitle">Trocar imagem</h4>
               </>
             )}
           </label>
@@ -123,37 +135,57 @@ export default function Home() {
       )}
 
       {/* Modal da imagem */}
-      {isLargeViewOpen && imagemPreview && (
-      <div className="largeViewModal" onClick={() => setIsLargeViewOpen(false)}>
-          <div className="modalContent" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setIsLargeViewOpen(false)}>
-              &times;
-            </button>
-            <img src={imagemPreview} alt="Visualização Grande" className="largeImage" />
-          </div>
-      </div>
+      {isLargeViewOpen && largeImageSrc && (
+        <div className="largeViewModal" onClick={() => setIsLargeViewOpen(false)}>
+            <div className="modalContent" onClick={e => e.stopPropagation()}>
+              <button onClick={() => setIsLargeViewOpen(false)}>
+                &times;
+              </button>
+              <img src={largeImageSrc} alt="Visualização Grande" className="largeImage" />
+            </div>
+        </div>
       )}
       
       {/* Resultados */}
       <div className='resultadosContainer'>
         {resultados.length > 0 && (
           <div className="resultadosCard">
-            <h2>Imagens Processadas:</h2>
+            <h3>Imagens Processadas:</h3>
             <div className="resultadosGrid">
               {resultados.map((url, index) => (
                 <div key={index} className="imgBox">
-                  <img src={url} alt={`Processado ${index}`} />
+                  <img 
+                    src={url} 
+                    alt={`Processado ${index}`} 
+                    className='imgResultado'
+                    onClick={(e) => openLargeView(e, url)}
+                  />                
                 </div>
               ))}
             </div>
-            <div className='buttonDownloadContainer'>
-              {csvUrl && (
-                <div className="csvDownload">
-                  <a href={csvUrl} download className='buttonDownload'>
-                    Baixar CSV com resultados
-                  </a>
+            
+            <div className="resumoContainer">
+              <h3>Resumo da Cobertura e Densidade:</h3>
+              {resumo.map((row, idx) => (
+                <div key={idx} className="resumoRow">
+                  {Object.entries(row).map(([key, val]) => (
+                    <p key={key}><strong>{key}:</strong> {String(val)}</p>
+                  ))}
                 </div>
-              )}
+              ))}
+            </div>
+
+
+            <div className='buttonDownloadContainer'>
+            <a
+              href={`http://localhost:5000/download_csvs/${csvUrl}`}
+              className="buttonDownload"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Baixar CSVs
+            </a>
+            <button className="btEnviar" onClick={resetUpload}>Enviar nova imagem</button>
             </div>
           </div>
         )}
