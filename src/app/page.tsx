@@ -113,7 +113,7 @@ export default function Home() {
             className={`labelForm ${imagemPreview ? 'hasImage' : ''}`}
           >
             {!imagemPreview ? (
-              "Selecione a imagem"
+              "Fazer upload da imagem"
             ) : (
               <>
                 <div className="PreviewBox" onClick={(e) => openLargeView(e, imagemPreview)}>
